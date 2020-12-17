@@ -15,7 +15,8 @@ from pytest_toolbox import mktree
 
 from aiohttp_devtools.runserver import run_app, runserver
 from aiohttp_devtools.runserver.config import Config
-from aiohttp_devtools.runserver.serve import create_auxiliary_app, modify_main_app, src_reload, start_main_app
+from aiohttp_devtools.runserver.serve import (create_auxiliary_app, create_main_app, modify_main_app, src_reload,
+                                              start_main_app)
 
 from .conftest import SIMPLE_APP
 
@@ -155,7 +156,8 @@ async def test_serve_main_app(tmpworkdir, loop, mocker):
     loop.call_later(0.5, loop.stop)
 
     config = Config(app_path='app.py')
-    await start_main_app(config, config.import_app_factory(), loop)
+    runner = await create_main_app(config, config.import_app_factory(), loop)
+    await start_main_app(runner, config.main_port)
 
     mock_modify_main_app.assert_called_with(mock.ANY, config)
 
@@ -176,7 +178,8 @@ app.router.add_get('/', hello)
     mock_modify_main_app = mocker.patch('aiohttp_devtools.runserver.serve.modify_main_app')
 
     config = Config(app_path='app.py')
-    await start_main_app(config, config.import_app_factory(), loop)
+    runner = await create_main_app(config, config.import_app_factory(), loop)
+    await start_main_app(runner, config.main_port)
 
     mock_modify_main_app.assert_called_with(mock.ANY, config)
 
